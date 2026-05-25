@@ -13,15 +13,35 @@
     name: "{{ autoupgrade_package }}"
     state: present
 
-- name: Deploy APT auto-upgrades config
+# ── Debian / Ubuntu ──────────────────────────────────────────────────────────
+- name: Deploy APT periodic config
   ansible.builtin.template:
-    src: apt-auto-upgrades.conf.j2
-    dest: "{{ apt_auto_upgrades_conf }}"
+    src: apt-periodic.conf.j2
+    dest: "{{ apt_periodic_conf }}"
     owner: root
     group: root
     mode: '0644'
-  when: ansible_pkg_mgr == 'apt'
+  when: ansible_pkg_mgr == 'apt' and apt_periodic
 
+- name: Deploy APT archives config
+  ansible.builtin.template:
+    src: apt-archives.conf.j2
+    dest: "{{ apt_archives_conf }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when: ansible_pkg_mgr == 'apt' and apt_archives
+
+- name: Deploy APT update hooks config
+  ansible.builtin.template:
+    src: apt-hooks.conf.j2
+    dest: "{{ apt_hooks_conf }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when: ansible_pkg_mgr == 'apt' and (apt_update_post_invoke_success or apt_update_pre_invoke)
+
+# ── AlmaLinux / RHEL ─────────────────────────────────────────────────────────
 - name: Deploy dnf-automatic config
   ansible.builtin.template:
     src: dnf-automatic.conf.j2
