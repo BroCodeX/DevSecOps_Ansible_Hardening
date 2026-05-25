@@ -1,0 +1,38 @@
+---
+- name: Load OS-specific variables
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_pkg_mgr == 'apt'
+
+- name: Install auto-upgrade package
+  ansible.builtin.package:
+    name: "{{ autoupgrade_package }}"
+    state: present
+
+- name: Deploy APT auto-upgrades config
+  ansible.builtin.template:
+    src: apt-auto-upgrades.conf.j2
+    dest: "{{ apt_auto_upgrades_conf }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when: ansible_pkg_mgr == 'apt'
+
+- name: Deploy dnf-automatic config
+  ansible.builtin.template:
+    src: dnf-automatic.conf.j2
+    dest: "{{ dnf_automatic_conf }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when: ansible_pkg_mgr == 'dnf'
+
+- name: Enable auto-upgrade service
+  ansible.builtin.service:
+    name: "{{ autoupgrade_service }}"
+    state: started
+    enabled: yes

@@ -1,0 +1,4 @@
+---
+apt_auto_upgrades_conf: /etc/apt/apt.conf.d/99-auto-upgrades
+autoupgrade_package: unattended-upgrades
+autoupgrade_service: unattended-upgrades

@@ -5,5 +5,3 @@ hardening_packages:
   - lynis
   - unattended-upgrades
   - logwatch
-
-autoupdate_service: unattended-upgrades

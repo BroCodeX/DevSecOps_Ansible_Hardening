@@ -1,0 +1,29 @@
+// Managed by Ansible — do not edit manually.
+
+{% if apt_periodic %}
+{% for key, value in apt_periodic.items() %}
+APT::Periodic::{{ key }} "{{ value }}";
+{% endfor %}
+
+{% endif %}
+{% if apt_archives %}
+{% for key, value in apt_archives.items() %}
+APT::Archives::{{ key }} "{{ value }}";
+{% endfor %}
+
+{% endif %}
+{% if apt_update_post_invoke_success %}
+APT::Update::Post-Invoke-Success {
+{% for cmd in apt_update_post_invoke_success %}
+    "{{ cmd }}";
+{% endfor %}
+};
+
+{% endif %}
+{% if apt_update_pre_invoke %}
+APT::Update::Pre-Invoke {
+{% for cmd in apt_update_pre_invoke %}
+    "{{ cmd }}";
+{% endfor %}
+};
+{% endif %}

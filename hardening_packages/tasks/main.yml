@@ -13,8 +13,3 @@
     name: "{{ hardening_packages }}"
     state: present
 
-- name: Enable auto-updates service
-  ansible.builtin.service:
-    name: "{{ autoupdate_service }}"
-    state: started
-    enabled: yes

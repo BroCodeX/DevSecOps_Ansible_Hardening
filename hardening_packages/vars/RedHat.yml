@@ -5,5 +5,3 @@ hardening_packages:
   - lynis
   - dnf-automatic
   - logwatch
-
-autoupdate_service: dnf-automatic.timer
