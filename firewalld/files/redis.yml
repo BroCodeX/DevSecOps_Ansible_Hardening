@@ -1,0 +1,10 @@
+---
+redis_rules:
+  - rich_rule: 'rule family="ipv4" source ipset="group_redis" port port="6379" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source ipset="group_redis" port port="6380" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source ipset="group_redis" port port="16379" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source ipset="group_monitoring" port port="7777" protocol="tcp" accept'
+    state: enabled

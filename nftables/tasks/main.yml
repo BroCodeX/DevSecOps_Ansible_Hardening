@@ -1,0 +1,24 @@
+---
+- name: Deploy nftables configuration
+  ansible.builtin.template:
+    src: nftables.conf.j2
+    dest: "{{ nftables_conf_path }}"
+    owner: root
+    group: root
+    mode: '0644'
+    backup: yes
+  notify: reload nftables
+
+- name: Deploy nftables restore script
+  ansible.builtin.template:
+    src: restore_nft_rules.sh.j2
+    dest: "{{ nftables_restore_script_path }}"
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Enable and start nftables
+  ansible.builtin.service:
+    name: nftables
+    state: started
+    enabled: yes

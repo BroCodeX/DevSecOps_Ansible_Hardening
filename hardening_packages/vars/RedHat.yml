@@ -1,0 +1,9 @@
+---
+hardening_packages:
+  - audit
+  - fail2ban
+  - lynis
+  - dnf-automatic
+  - logwatch
+
+autoupdate_service: dnf-automatic.timer

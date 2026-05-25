@@ -1,0 +1,32 @@
+---
+lands_rules:
+  - rich_rule: 'rule family="ipv4" source ipset="group_all" port port="14305" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source ipset="group_all" port port="14306" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source ipset="group_all" port port="2323" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source address="51.178.131.232" port port="2323" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source address="23.105.254.100" port port="2323" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source ipset="group_monitoring" port port="13453" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" port port="80" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" port port="443" protocol="tcp" accept'
+    state: enabled
+    
+  #Binom hosts
+  - rich_rule: 'rule family="ipv4" source ipset="custom_ipset_binom" port port="14305" protocol="tcp" accept'
+    state: enabled
+
+  #Cloudflare hosts
+  - rich_rule: 'rule family="ipv4" source ipset="custom_ipset_cloudflare" port port="14305" protocol="tcp" accept'
+    state: enabled
+
+  - rich_rule: 'rule family="ipv4" source ipset="custom_ipset_binom_blacklist" drop'
+    state: enabled
+
+  - service: ssh
+    state: disabled

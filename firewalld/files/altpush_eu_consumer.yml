@@ -1,0 +1,4 @@
+---
+altpush_eu_consumer_rules:
+  - service: ssh
+    state: disabled

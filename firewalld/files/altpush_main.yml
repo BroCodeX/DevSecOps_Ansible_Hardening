@@ -1,0 +1,15 @@
+---
+altpush_main_rules:
+  - rich_rule: 'rule family="ipv4" source ipset="group_monitoring" port port="8111" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source ipset="group_monitoring" port port="9111" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source address="178.162.196.156" port port="22" protocol="tcp" accept'
+    state: enabled
+
+  # access from altpush-eu2 to deploy SSL certs
+  - rich_rule: 'rule family="ipv4" source address="178.162.215.162" port port="22" protocol="tcp" accept'
+    state: enabled
+
+  - service: ssh
+    state: disabled

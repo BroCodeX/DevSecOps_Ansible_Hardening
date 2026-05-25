@@ -1,0 +1,37 @@
+---
+- name: Load OS-specific variables
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Create backup directory
+  ansible.builtin.file:
+    path: "{{ backup_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Backup system files
+  ansible.builtin.copy:
+    src: "{{ item.path }}"
+    dest: "{{ backup_dir }}/{{ item.path | basename }}.{{ ansible_date_time.date }}"
+    remote_src: yes
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+    force: no
+  loop: "{{ system_files }}"
+
+- name: Fix system file permissions
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  loop: "{{ system_files }}"
+
+- name: Set password policy
+  ansible.builtin.lineinfile:
+    path: "{{ login_defs_path }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop: "{{ password_policy }}"

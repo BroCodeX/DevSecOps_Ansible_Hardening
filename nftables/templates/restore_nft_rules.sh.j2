@@ -1,0 +1,52 @@
+#!/bin/bash
+# Managed by Ansible — do not edit manually.
+# Rebuilds the full nftables ruleset and saves it to {{ nftables_conf_path }}.
+
+set -euo pipefail
+
+echo "=== Инициализация ПОЛНОГО набора правил nftables ==="
+
+nft add table inet filter
+nft flush table inet filter
+nft add chain inet filter input '{ type filter hook input priority filter; policy accept; }'
+
+# Loopback и установленные сессии
+nft add rule inet filter input iif "lo" accept
+nft add rule inet filter input ct state established,related accept
+
+echo "Создаем ВСЕ именованные счетчики..."
+nft add counter inet filter c_syn_scan_ok
+nft add counter inet filter c_syn_scan_drop
+nft add counter inet filter c_udp_scan_drop
+nft add counter inet filter c_port_scan_ok
+nft add counter inet filter c_port_scan_drop
+nft add counter inet filter c_xmas_drop
+nft add counter inet filter c_null_drop
+
+echo "Привязываем правила детекции атак..."
+
+# СЕКЦИЯ 1: Защита от SYN-флуда и SYN-сканирования
+nft add rule inet filter input 'tcp flags syn / fin,syn,rst,ack limit rate 10/second burst 5 packets counter name c_syn_scan_ok accept'
+nft add rule inet filter input 'tcp flags syn / fin,syn,rst,ack counter name c_syn_scan_drop log prefix "SYN-SCAN-DETECTED: " drop'
+
+# СЕКЦИЯ 2: Защита от UDP-сканирования / флуда
+nft add rule inet filter input 'ip protocol udp limit rate 20/second burst 10 packets accept'
+nft add rule inet filter input 'ip protocol udp counter name c_udp_scan_drop log prefix "UDP-SCAN-DETECTED: " drop'
+
+# СЕКЦИЯ 3: Аномальные TCP-флаги (Stealth сканирование)
+nft add rule inet filter input 'tcp flags fin,syn / fin,syn,rst,psh,ack,urg limit rate 5/minute burst 5 packets counter name c_port_scan_ok accept'
+nft add rule inet filter input 'tcp flags fin,syn / fin,syn,rst,psh,ack,urg counter name c_port_scan_drop log prefix "PORT-SCAN-DETECTED: " drop'
+nft add rule inet filter input 'tcp flags fin,syn,rst,psh,ack,urg / fin,syn,rst,psh,ack,urg counter name c_xmas_drop log prefix "XMAS-SCAN-BLOCK: " drop'
+nft add rule inet filter input 'tcp flags ! fin,syn,rst,psh,ack,urg counter name c_null_drop log prefix "NULL-SCAN-BLOCK: " drop'
+
+echo "=== Сохраняем таблицу в {{ nftables_conf_path }} ==="
+(
+  echo "#!/usr/sbin/nft -f"
+  echo ""
+  echo "add table inet filter"
+  echo "flush table inet filter"
+  echo ""
+  nft list table inet filter
+) | tee {{ nftables_conf_path }}
+
+echo "Полный набор правил успешно применен и сохранен!"

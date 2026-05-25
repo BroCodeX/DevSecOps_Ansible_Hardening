@@ -1,0 +1,30 @@
+---
+clickhouse_rules:
+  - rich_rule: 'rule family="ipv4" source ipset="group_all" port port="9000" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source ipset="group_all" port port="9004" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source ipset="group_clickhouse" port port="9009" protocol="tcp" accept'
+    state: enabled
+
+  # ClickHouse HTTP protocol
+  - rich_rule: 'rule family="ipv4" source ipset="group_all" port port="9464" protocol="tcp" accept'
+    state: enabled
+
+  # ClickHouse MySQL protocol
+  - rich_rule: 'rule family="ipv4" source ipset="group_all" port port="8123" protocol="tcp" accept'
+    state: enabled
+
+  - rich_rule: 'rule family="ipv4" source ipset="custom_ipset_yandex_datalens" port port="9464" protocol="tcp" accept'
+    state: enabled
+
+  # statistics api metrics
+  - rich_rule: 'rule family="ipv4" source ipset="group_monitoring" port port="14021" protocol="tcp" accept'
+    state: enabled
+    
+  - service: ssh
+    state: disabled
+
+firewalld_adding_custom_ipsets: true
+firewalld_adding_custom_ipsets_list:
+  - custom_ipset_yandex_datalens

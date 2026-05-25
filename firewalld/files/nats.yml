@@ -1,0 +1,8 @@
+---
+nats_rules:
+  - service: ssh
+    state: disabled
+  - rich_rule: 'rule family="ipv4" source ipset="group_all" port port="4222" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source ipset="group_nats" port port="4248" protocol="tcp" accept'
+    state: enabled

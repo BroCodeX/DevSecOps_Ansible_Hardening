@@ -1,0 +1,12 @@
+---
+altpush_dispatcher_rules:
+  - rich_rule: 'rule family="ipv4" source ipset="group_monitoring" port port="8311" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source ipset="group_monitoring" port port="9311" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source ipset="group_altpush_consumer" port port="6379" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source ipset="group_altpush_main" port port="6379" protocol="tcp" accept'
+    state: enabled
+  - service: ssh
+    state: disabled

@@ -1,0 +1,9 @@
+---
+ssh_port: 22
+ssh_config_path: /etc/ssh/sshd_config
+backup_dir: /var/backups/hardening
+
+ssh_settings:
+  - { regexp: '^#?PermitRootLogin', line: 'PermitRootLogin no' }
+  - { regexp: '^#?PasswordAuthentication', line: 'PasswordAuthentication no' }
+  - { regexp: '^#?MaxAuthTries', line: 'MaxAuthTries 3' }

@@ -1,0 +1,50 @@
+#!/usr/sbin/nft -f
+# Managed by Ansible — do not edit manually.
+# To regenerate rules run: {{ nftables_restore_script_path }}
+
+add table inet filter
+flush table inet filter
+
+table inet filter {
+	counter c_syn_scan_ok {
+		packets 0 bytes 0
+	}
+
+	counter c_syn_scan_drop {
+		packets 0 bytes 0
+	}
+
+	counter c_udp_scan_drop {
+		packets 0 bytes 0
+	}
+
+	counter c_port_scan_ok {
+		packets 0 bytes 0
+	}
+
+	counter c_port_scan_drop {
+		packets 0 bytes 0
+	}
+
+	counter c_xmas_drop {
+		packets 0 bytes 0
+	}
+
+	counter c_null_drop {
+		packets 0 bytes 0
+	}
+
+	chain input {
+		type filter hook input priority filter; policy accept;
+		iif "lo" accept
+		ct state established,related accept
+		tcp flags syn / fin,syn,rst,ack limit rate 10/second burst 5 packets counter name "c_syn_scan_ok" accept
+		tcp flags syn / fin,syn,rst,ack counter name "c_syn_scan_drop" log prefix "SYN-SCAN-DETECTED: " drop
+		ip protocol udp limit rate 20/second burst 10 packets accept
+		ip protocol udp counter name "c_udp_scan_drop" log prefix "UDP-SCAN-DETECTED: " drop
+		tcp flags fin,syn / fin,syn,rst,psh,ack,urg limit rate 5/minute burst 5 packets counter name "c_port_scan_ok" accept
+		tcp flags fin,syn / fin,syn,rst,psh,ack,urg counter name "c_port_scan_drop" log prefix "PORT-SCAN-DETECTED: " drop
+		tcp flags fin,syn,rst,psh,ack,urg / fin,syn,rst,psh,ack,urg counter name "c_xmas_drop" log prefix "XMAS-SCAN-BLOCK: " drop
+		tcp flags ! fin,syn,rst,psh,ack,urg counter name "c_null_drop" log prefix "NULL-SCAN-BLOCK: " drop
+	}
+}

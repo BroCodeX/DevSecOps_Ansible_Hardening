@@ -1,0 +1,9 @@
+---
+hardening_packages:
+  - auditd
+  - fail2ban
+  - lynis
+  - unattended-upgrades
+  - logwatch
+
+autoupdate_service: unattended-upgrades

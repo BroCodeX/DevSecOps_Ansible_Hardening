@@ -1,0 +1,20 @@
+---
+- name: Load OS-specific variables
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_pkg_mgr == 'apt'
+
+- name: Install hardening packages
+  ansible.builtin.package:
+    name: "{{ hardening_packages }}"
+    state: present
+
+- name: Enable auto-updates service
+  ansible.builtin.service:
+    name: "{{ autoupdate_service }}"
+    state: started
+    enabled: yes

@@ -1,0 +1,4 @@
+---
+altpush_region_eu_rules:
+  - service: ssh
+    state: disabled

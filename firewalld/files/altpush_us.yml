@@ -1,0 +1,6 @@
+---
+altpush_us_rules:
+  - rich_rule: 'rule family="ipv4" source ipset="group_altpush_region_us" port port="18805" protocol="tcp" accept'
+    state: enabled
+  - service: ssh
+    state: disabled

@@ -1,0 +1,11 @@
+---
+binom_rules:
+  - rich_rule: 'rule family="ipv4" source ipset="custom_ipset_binom_whitelist" port port="22" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source ipset="custom_ipset_binom_whitelist" port port="2323" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source ipset="custom_ipset_binom_blacklist" drop'
+    state: enabled
+
+  - service: ssh
+    state: disabled

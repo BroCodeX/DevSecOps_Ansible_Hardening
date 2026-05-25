@@ -1,0 +1,6 @@
+---
+postback_consumer_rules:
+  - rich_rule: 'rule family="ipv4" source ipset="group_monitoring" port port="13253" protocol="tcp" accept'
+    state: enabled
+  - service: ssh
+    state: disabled

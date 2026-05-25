@@ -1,0 +1,14 @@
+---
+kafka_rules:
+  - rich_rule: 'rule family="ipv4" source ipset="group_all" port port="9092" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source ipset="group_all" port port="19092" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source ipset="group_kafka" port port="9093" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source ipset="group_all" port port="9192" protocol="tcp" accept'
+    state: enabled
+  - rich_rule: 'rule family="ipv4" source ipset="group_all" port port="19192" protocol="tcp" accept'
+    state: enabled
+  - service: ssh
+    state: disabled
