@@ -1,3 +1,6 @@
 ---
 nftables_conf_path: /etc/nftables.conf
 nftables_restore_script_path: /usr/local/sbin/restore_nft_rules.sh
+nftables_ssh_port: 22
+nftables_ssh_rate_limit: 3    # новых соединений в минуту с одного IP
+nftables_ssh_rate_burst: 3    # burst поверх лимита

@@ -6,6 +6,14 @@ add table inet filter
 flush table inet filter
 
 table inet filter {
+	counter c_ssh_accept {
+		packets 0 bytes 0
+	}
+
+	counter c_ssh_rate_drop {
+		packets 0 bytes 0
+	}
+
 	counter c_syn_scan_ok {
 		packets 0 bytes 0
 	}
@@ -38,6 +46,11 @@ table inet filter {
 		type filter hook input priority filter; policy accept;
 		iif "lo" accept
 		ct state established,related accept
+
+		# SSH: max {{ nftables_ssh_rate_limit }} новых соединений в минуту с одного IP
+		tcp dport {{ nftables_ssh_port }} ct state new meter ssh_limit { ip saddr limit rate {{ nftables_ssh_rate_limit }}/minute burst {{ nftables_ssh_rate_burst }} packets } counter name "c_ssh_accept" accept
+		tcp dport {{ nftables_ssh_port }} ct state new counter name "c_ssh_rate_drop" log prefix "SSH-RATE-DROP: " drop
+
 		tcp flags syn / fin,syn,rst,ack limit rate 10/second burst 5 packets counter name "c_syn_scan_ok" accept
 		tcp flags syn / fin,syn,rst,ack counter name "c_syn_scan_drop" log prefix "SYN-SCAN-DETECTED: " drop
 		ip protocol udp limit rate 20/second burst 10 packets accept

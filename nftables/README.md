@@ -11,10 +11,13 @@
 
 ## Переменные (`defaults/main.yml`)
 
-| Переменная | По умолчанию |
-|------------|-------------|
-| `nftables_conf_path` | `/etc/nftables.conf` |
-| `nftables_restore_script_path` | `/usr/local/sbin/restore_nft_rules.sh` |
+| Переменная | По умолчанию | Описание |
+|------------|-------------|----------|
+| `nftables_conf_path` | `/etc/nftables.conf` | Путь к ruleset |
+| `nftables_restore_script_path` | `/usr/local/sbin/restore_nft_rules.sh` | Путь к restore-скрипту |
+| `nftables_ssh_port` | `22` | SSH порт |
+| `nftables_ssh_rate_limit` | `3` | Макс. новых соединений в минуту с одного IP |
+| `nftables_ssh_rate_burst` | `3` | Burst поверх лимита |
 
 ## Что в ruleset
 
