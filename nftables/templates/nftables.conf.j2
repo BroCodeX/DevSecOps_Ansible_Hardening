@@ -2,62 +2,55 @@
 # Managed by Ansible — do not edit manually.
 # To regenerate rules run: {{ nftables_restore_script_path }}
 
-add table inet filter
-flush table inet filter
+flush ruleset
 
 table inet filter {
-	counter c_ssh_accept {
-		packets 0 bytes 0
-	}
 
-	counter c_ssh_rate_drop {
-		packets 0 bytes 0
-	}
+    counter c_ssh_accept   {}
+    counter c_stealth_drop {}
+    counter c_null_drop    {}
 
-	counter c_syn_scan_ok {
-		packets 0 bytes 0
-	}
+    chain input {
+        type filter hook input priority filter; policy drop;
 
-	counter c_syn_scan_drop {
-		packets 0 bytes 0
-	}
+        # Loopback
+        iif "lo" accept
 
-	counter c_udp_scan_drop {
-		packets 0 bytes 0
-	}
+        # Установленные и связанные сессии
+        ct state established,related accept
 
-	counter c_port_scan_ok {
-		packets 0 bytes 0
-	}
+        # Невалидные пакеты
+        ct state invalid drop
 
-	counter c_port_scan_drop {
-		packets 0 bytes 0
-	}
+        # SSH
+        tcp dport {{ nftables_ssh_port }} ct state new counter name c_ssh_accept accept
+{% if nftables_web_enabled %}
 
-	counter c_xmas_drop {
-		packets 0 bytes 0
-	}
+        # HTTP/HTTPS
+        tcp dport { 80, 443 } ct state new accept
+{% endif %}
 
-	counter c_null_drop {
-		packets 0 bytes 0
-	}
+        # Аномальные TCP-флаги
+        tcp flags & (fin|syn|rst|psh|ack|urg) == (fin|syn|rst|psh|ack|urg) \
+            counter name c_stealth_drop log prefix "XMAS-SCAN: " drop
+        tcp flags & (fin|syn|rst|psh|ack|urg) == 0x0 \
+            counter name c_null_drop log prefix "NULL-SCAN: " drop
+        tcp flags & (fin|syn) == (fin|syn) \
+            counter name c_stealth_drop log prefix "FIN-SYN-SCAN: " drop
 
-	chain input {
-		type filter hook input priority filter; policy accept;
-		iif "lo" accept
-		ct state established,related accept
+        # ICMP ping
+        ip protocol icmp icmp type { echo-request } accept
 
-		# SSH: max {{ nftables_ssh_rate_limit }} новых соединений в минуту с одного IP
-		tcp dport {{ nftables_ssh_port }} ct state new meter ssh_limit { ip saddr limit rate {{ nftables_ssh_rate_limit }}/minute burst {{ nftables_ssh_rate_burst }} packets } counter name "c_ssh_accept" accept
-		tcp dport {{ nftables_ssh_port }} ct state new counter name "c_ssh_rate_drop" log prefix "SSH-RATE-DROP: " drop
+        # ICMPv6 (NDP обязателен для корректной работы IPv6)
+        ip6 nexthdr icmpv6 icmpv6 type { echo-request, nd-neighbor-solicit,
+                                         nd-neighbor-advert, nd-router-advert } accept
+    }
 
-		tcp flags syn / fin,syn,rst,ack limit rate 10/second burst 5 packets counter name "c_syn_scan_ok" accept
-		tcp flags syn / fin,syn,rst,ack counter name "c_syn_scan_drop" log prefix "SYN-SCAN-DETECTED: " drop
-		ip protocol udp limit rate 20/second burst 10 packets accept
-		ip protocol udp counter name "c_udp_scan_drop" log prefix "UDP-SCAN-DETECTED: " drop
-		tcp flags fin,syn / fin,syn,rst,psh,ack,urg limit rate 5/minute burst 5 packets counter name "c_port_scan_ok" accept
-		tcp flags fin,syn / fin,syn,rst,psh,ack,urg counter name "c_port_scan_drop" log prefix "PORT-SCAN-DETECTED: " drop
-		tcp flags fin,syn,rst,psh,ack,urg / fin,syn,rst,psh,ack,urg counter name "c_xmas_drop" log prefix "XMAS-SCAN-BLOCK: " drop
-		tcp flags ! fin,syn,rst,psh,ack,urg counter name "c_null_drop" log prefix "NULL-SCAN-BLOCK: " drop
-	}
+    chain output {
+        type filter hook output priority filter; policy accept;
+    }
+
+    chain forward {
+        type filter hook forward priority filter; policy drop;
+    }
 }
