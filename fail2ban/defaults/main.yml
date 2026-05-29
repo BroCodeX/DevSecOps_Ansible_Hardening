@@ -29,6 +29,6 @@ fail2ban_jails:
       port: 22
       filter: sshd
       backend: systemd
-      maxretry: 5
+      maxretry: 3
       findtime: 5m
       bantime: 1h
