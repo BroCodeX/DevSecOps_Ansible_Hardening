@@ -1,0 +1,11 @@
+---
+- name: Install auditd package
+  ansible.builtin.package:
+    name: "{{ auditd_package }}"
+    state: present
+
+- name: Enable and start auditd
+  ansible.builtin.service:
+    name: auditd
+    state: started
+    enabled: yes

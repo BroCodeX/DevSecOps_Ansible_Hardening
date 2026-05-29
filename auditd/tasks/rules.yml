@@ -1,0 +1,9 @@
+---
+- name: Deploy audit rules
+  ansible.builtin.template:
+    src: hardening.rules.j2
+    dest: "{{ audit_rules_path }}"
+    owner: root
+    group: root
+    mode: '0640'
+  notify: reload auditd rules

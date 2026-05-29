@@ -1,0 +1,20 @@
+---
+audit_rules_path: /etc/audit/rules.d/hardening.rules
+
+audit_rules:
+  # Identity files
+  - '-w /etc/passwd -p wa -k identity'
+  - '-w /etc/shadow -p wa -k identity'
+  - '-w /etc/group -p wa -k identity'
+  # Sudo
+  - '-w /etc/sudoers -p wa -k sudoers'
+  - '-w /etc/sudoers.d -p wa -k sudoers'
+  # SSH
+  - '-w /etc/ssh/sshd_config -p wa -k sshd_config'
+  - '-w /root/.ssh -p wa -k root_ssh'
+  # Privilege escalation (setuid/setgid)
+  - '-a always,exit -F arch=b64 -S setuid,setgid -F key=setuid'
+  - '-a always,exit -F arch=b32 -S setuid,setgid -F key=setuid'
+  # Access denied (open/openat → EACCES)
+  - '-a always,exit -F arch=b64 -S open,openat -F exit=-EACCES -F key=access_denied'
+  - '-a always,exit -F arch=b32 -S open,openat -F exit=-EACCES -F key=access_denied'

@@ -36,3 +36,6 @@
 
     - role: auto_upgrades
       tags: [auto_upgrades]
+
+    - role: auditd
+      tags: [auditd]
