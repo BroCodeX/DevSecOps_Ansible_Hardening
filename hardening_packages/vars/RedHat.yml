@@ -4,4 +4,3 @@ hardening_packages:
   - fail2ban
   - lynis
   - dnf-automatic
-  - logwatch

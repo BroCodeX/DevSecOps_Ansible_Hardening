@@ -1,15 +1,28 @@
-# nftables
+# network_hardening
 
-Деплоит ruleset из шаблона и скрипт ручного восстановления правил.
+Деплоит nftables ruleset и применяет sysctl-параметры для hardening сети и ядра.
 
-## Что деплоится
+## Структура
+
+```
+tasks/
+├── main.yml      — import_tasks для nft и sysctl
+├── nft.yaml      — nftables ruleset + restore-скрипт
+└── sysctl.yaml   — деплой /etc/sysctl.d/99-hardening.conf
+```
+
+---
+
+## nftables
+
+### Что деплоится
 
 | Файл | Назначение |
 |------|-----------|
 | `{{ nftables_conf_path }}` | Ruleset, загружается сервисом nftables при старте |
 | `{{ nftables_restore_script_path }}` | Bash-скрипт для ручного пересоздания правил |
 
-## Переменные (`defaults/main.yml`)
+### Переменные
 
 | Переменная | По умолчанию | Описание |
 |------------|-------------|----------|
@@ -18,7 +31,7 @@
 | `nftables_ssh_port` | `22` | SSH порт |
 | `nftables_web_enabled` | `false` | Открыть tcp 80 и 443 |
 
-## Что в ruleset
+### Что в ruleset
 
 **Политика: `input drop`, `forward drop`, `output accept`**
 
@@ -35,11 +48,11 @@
 | ICMP echo-request | accept |
 | ICMPv6 echo + NDP | accept |
 
-## Счётчики
+### Счётчики
 
 ```bash
-nft list counters        # посмотреть все
-nft reset counters       # сбросить
+nft list counters   # посмотреть все
+nft reset counters  # сбросить
 ```
 
 | Счётчик | Что считает |
@@ -47,3 +60,39 @@ nft reset counters       # сбросить
 | `c_ssh_accept` | Принятые SSH соединения |
 | `c_stealth_drop` | Дропы XMAS и FIN/SYN сканов |
 | `c_null_drop` | Дропы NULL сканов |
+
+---
+
+## sysctl hardening
+
+Деплоит `/etc/sysctl.d/99-hardening.conf` и применяет через `sysctl --system`.
+
+### Переменные
+
+| Переменная | По умолчанию | Описание |
+|------------|-------------|----------|
+| `sysctl_conf_path` | `/etc/sysctl.d/99-hardening.conf` | Путь к файлу параметров |
+| `sysctl_params` | см. defaults | Список `{name, value}` |
+
+### Параметры по умолчанию
+
+| Параметр | Значение | Зачем |
+|----------|----------|-------|
+| `net.ipv4.conf.all.accept_redirects` | 0 | Запретить ICMP redirect (MITM) |
+| `net.ipv4.conf.default.accept_redirects` | 0 | То же для новых интерфейсов |
+| `net.ipv4.conf.all.send_redirects` | 0 | Не слать redirect (только роутеры) |
+| `net.ipv4.conf.all.log_martians` | 1 | Логировать пакеты с невозможными адресами |
+| `net.ipv4.conf.default.log_martians` | 1 | То же для новых интерфейсов |
+| `net.ipv4.conf.all.rp_filter` | 1 | Strict reverse path filtering |
+| `net.ipv6.conf.all.accept_redirects` | 0 | Запретить ICMPv6 redirect |
+| `net.ipv6.conf.default.accept_redirects` | 0 | То же для новых интерфейсов |
+| `kernel.yama.ptrace_scope` | 1 | Ограничить ptrace (только родитель→дочерний) |
+| `kernel.kptr_restrict` | 2 | Скрыть адреса ядра из /proc |
+| `kernel.sysrq` | 0 | Отключить Magic SysRq |
+
+### Добавление параметра
+
+```yaml
+sysctl_params:
+  - { name: 'net.ipv4.tcp_syncookies', value: 1 }
+```
