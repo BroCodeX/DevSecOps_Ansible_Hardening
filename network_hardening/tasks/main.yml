@@ -22,3 +22,12 @@
     name: nftables
     state: started
     enabled: yes
+
+- name: Deploy sysctl hardening config
+  ansible.builtin.template:
+    src: 99-hardening.conf.j2
+    dest: "{{ sysctl_conf_path }}"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: apply sysctl

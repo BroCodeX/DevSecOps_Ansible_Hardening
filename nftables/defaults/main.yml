@@ -1,5 +1,0 @@
----
-nftables_conf_path: /etc/nftables.conf
-nftables_restore_script_path: /usr/local/sbin/restore_nft_rules.sh
-nftables_ssh_port: 22
-nftables_web_enabled: false   # true — открыть tcp 80 и 443
