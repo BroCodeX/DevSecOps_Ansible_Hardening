@@ -1,4 +1,4 @@
 # Managed by Ansible — do not edit manually
-{% for rule in audit_rules %}
+{% for rule in item.rules %}
 {{ rule }}
 {% endfor %}

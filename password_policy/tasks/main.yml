@@ -1,6 +1,6 @@
 ---
 - name: Load OS-specific variables
-  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"
 
 - name: Backup system files
   ansible.builtin.import_tasks: backup.yml
