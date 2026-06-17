@@ -43,3 +43,15 @@ ssh_port: 22
 backup_dir: /var/backups/hardening
 nftables_web_enabled: false
 ```
+
+## Полезные ссылки
+
+| Инструмент | Описание | Документация |
+|------------|----------|--------------|
+| `chkrootkit` | Проверяет систему на известные rootkit и подозрительные системные файлы. | https://chkrootkit.org/ |
+| `rkhunter` | Ищет руткиты, аномальные права, подозрительные setuid/setgid-файлы и world-writable каталоги. | https://rkhunter.sourceforge.net/ |
+| `aide` | FIM-инструмент для создания баз данных файловой целостности и обнаружения изменений. | https://aide.github.io/ |
+| `debsums` | Проверяет целостность установленных пакетов Debian/Ubuntu по контрольным суммам. | https://manpages.debian.org/stretch/debsums/debsums.1.en.html |
+| `Lynis` | Мощный инструмент аудита безопасности Linux-систем с рекомендациями по hardening. | https://cisofy.com/lynis/ |
+| `Trivy` | Сканер уязвимостей для контейнеров, образов, файловой системы и инфраструктуры. | https://aquasecurity.github.io/trivy/ |
+| `OpenSCAP` | Фреймворк для проверки соответствия стандартам безопасности и профильной аудита. | https://www.open-scap.org/ |
