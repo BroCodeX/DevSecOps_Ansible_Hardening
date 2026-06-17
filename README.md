@@ -1,4 +1,4 @@
-# DevSecOps_Useful
+# DevSecOps Ansible Hardening
 
 Ansible-роли для базового hardening Linux-серверов (Debian/Ubuntu, RHEL/CentOS).  
 Запускаются единым плейбуком `hardening.yml`.
