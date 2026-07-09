@@ -52,5 +52,14 @@ table inet filter {
 
     chain forward {
         type filter hook forward priority filter; policy drop;
+{% if nftables_docker_enabled %}
+
+        ct state established,related accept
+        ct state invalid drop
+
+        # Docker managed bridges (default docker0 + user-defined br-*)
+        iifname "docker0" oifname "docker0" accept
+        iifname "br-*" oifname "br-*" accept
+{% endif %}
     }
 }

@@ -6,7 +6,9 @@
     group: root
     mode: '0644'
     backup: yes
-  notify: reload nftables
+  notify:
+    - reload nftables
+    - restart docker after nftables reload
 
 - name: Deploy nftables restore script
   ansible.builtin.template:

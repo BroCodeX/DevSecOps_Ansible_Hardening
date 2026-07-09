@@ -30,10 +30,17 @@ tasks/
 | `nftables_restore_script_path` | `/usr/local/sbin/restore_nft_rules.sh` | Путь к restore-скрипту |
 | `nftables_ssh_port` | `22` | SSH порт |
 | `nftables_web_enabled` | `false` | Открыть tcp 80 и 443 |
+| `nftables_docker_enabled` | `false` | Хост крутит Docker: разрешить forward между docker-бриджами (`docker0`, `br-*`) и включить `ip_forward`/`forwarding` в sysctl. Без этого Docker не может маршрутизировать трафик между контейнерами (netfilter `forward` hook общий для всех таблиц — `policy drop` в этой таблице дропает пакеты независимо от правил Docker в `DOCKER-USER`/`DOCKER-ISOLATION`) |
 
 ### Что в ruleset
 
 **Политика: `input drop`, `forward drop`, `output accept`**
+
+Если `nftables_docker_enabled: true`, в `forward` добавляются accept-правила для established/related-сессий и для трафика между docker-бриджами (`docker0`, `br-*`) — иначе Docker-хосты теряют связность между контейнерами.
+
+**Важно:** `flush ruleset` в начале конфига — глобальный, он сносит вообще все nftables-таблицы, включая те, что создаёт себе сам dockerd (`DOCKER-FORWARD`, `DOCKER-ISOLATION-STAGE-*`, `DOCKER-USER`). Docker не пересоздаёт их сам по себе — только при старте демона. Поэтому при `nftables_docker_enabled: true` handler `reload nftables` дополнительно нотифицирует `restart docker after nftables reload`, который перезапускает `docker.service` и заставляет Docker пересоздать свои цепочки.
+
+Это не покрывает случай **перезагрузки хоста**: `nftables.service` обычно стартует раньше `docker.service` и тоже делает `flush ruleset`. Если после ребута `docker compose up` падает с `iptables: No chain/target/match by that name`, сделайте `systemctl restart docker` вручную (или добавьте `systemd` override `docker.service` → `After=nftables.service` + `ExecStartPre=/bin/systemctl restart docker` — пока не автоматизировано в этой роли).
 
 | Правило | Действие |
 |---------|----------|
@@ -89,6 +96,8 @@ nft reset counters  # сбросить
 | `kernel.yama.ptrace_scope` | 1 | Ограничить ptrace (только родитель→дочерний) |
 | `kernel.kptr_restrict` | 2 | Скрыть адреса ядра из /proc |
 | `kernel.sysrq` | 0 | Отключить Magic SysRq |
+| `net.ipv4.ip_forward` | 0 (1 если `nftables_docker_enabled`) | Форвардинг IPv4 — нужен Docker для NAT/маршрутизации между контейнерами |
+| `net.ipv6.conf.all.forwarding` | 0 (1 если `nftables_docker_enabled`) | То же для IPv6 |
 
 ### Добавление параметра
 
