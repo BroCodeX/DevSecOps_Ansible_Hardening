@@ -32,3 +32,18 @@ fail2ban_jails:
       maxretry: 3
       findtime: 5m
       bantime: 1h
+
+# Кастомные фильтры. Каждый item — отдельный файл /etc/fail2ban/filter.d/<name>.conf
+# Ключи внутри definition соответствуют директивам секции [Definition] фильтра fail2ban.
+# Значение ключа может быть строкой или списком строк (для многострочного failregex).
+#
+# Пример:
+# fail2ban_filters:
+#   - name: custom-app
+#     definition:
+#       failregex:
+#         - ^<HOST> - Failed login for .*$
+#         - ^<HOST> - Blocked suspicious request .*$
+#       ignoreregex: ''
+
+fail2ban_filters: []

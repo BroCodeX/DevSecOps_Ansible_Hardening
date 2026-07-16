@@ -1,16 +1,12 @@
 ---
-- name: Deploy fail2ban jail configs
-  ansible.builtin.template:
-    src: jail.local.j2
-    dest: "/etc/fail2ban/jail.d/{{ item.name }}.local"
-    owner: root
-    group: root
-    mode: '0644'
-  loop: "{{ fail2ban_jails }}"
-  notify: restart fail2ban
+- name: Install fail2ban package
+  ansible.builtin.import_tasks: install.yml
 
-- name: Enable and start fail2ban
-  ansible.builtin.service:
-    name: fail2ban
-    state: started
-    enabled: yes
+- name: Deploy fail2ban custom filters
+  ansible.builtin.import_tasks: filters.yml
+
+- name: Deploy fail2ban jail configs
+  ansible.builtin.import_tasks: jails.yml
+
+- name: Enable and start fail2ban service
+  ansible.builtin.import_tasks: service.yml
