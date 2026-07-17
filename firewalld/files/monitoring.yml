@@ -1,9 +1,0 @@
----
-monitoring_rules:
-  - rich_rule: 'rule family="ipv4" source ipset="group_all" port port="80" protocol="tcp" accept'
-    state: enabled
-  - rich_rule: 'rule family="ipv4" source ipset="group_all" port port="443" protocol="tcp" accept'
-    state: enabled
-
-  - service: ssh
-    state: disabled

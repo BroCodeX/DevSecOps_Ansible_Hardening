@@ -1,6 +1,0 @@
----
-altpush_region_us_rules:
-  - rich_rule: 'rule family="ipv4" source address="73.234.158.147" port port="9111" protocol="tcp" accept'
-    state: enabled
-  - service: ssh
-    state: disabled
