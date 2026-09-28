@@ -13,12 +13,14 @@
 - name: Backup sshd_config
   ansible.builtin.copy:
     src: "{{ ssh_config_path }}"
-    dest: "{{ backup_dir }}/sshd_config.{{ ansible_date_time.date }}"
+    dest: "{{ backup_dir }}/sshd_config.{{ ansible_facts['date_time']['date'] }}"
     remote_src: yes
     owner: root
     group: root
     mode: '0600'
     force: no
+  # backup_dir is not really created in check mode, so the copy would fail
+  when: not ansible_check_mode
 
 - name: Fix sshd_config permissions
   ansible.builtin.file:

@@ -5,7 +5,7 @@
     state: present
     update_cache: yes
   when:
-    - ansible_os_family == "Debian"
+    - ansible_facts['os_family'] == "Debian"
     - not ansible_check_mode
 
 - name: Populate service facts

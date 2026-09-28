@@ -9,3 +9,8 @@
     name: auditd
     state: started
     enabled: yes
+  register: auditd_service
+  # In check mode the package is only simulated, so the unit may not exist yet
+  failed_when:
+    - auditd_service is failed
+    - not (ansible_check_mode and 'Could not find the requested service' in auditd_service.msg | default(''))

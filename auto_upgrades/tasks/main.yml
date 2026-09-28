@@ -6,7 +6,7 @@
   ansible.builtin.apt:
     update_cache: yes
     cache_valid_time: 3600
-  when: ansible_pkg_mgr == 'apt'
+  when: ansible_facts['pkg_mgr'] == 'apt'
 
 - name: Install auto-upgrade package
   ansible.builtin.package:
@@ -21,7 +21,7 @@
     owner: root
     group: root
     mode: '0644'
-  when: ansible_pkg_mgr == 'apt' and apt_periodic
+  when: ansible_facts['pkg_mgr'] == 'apt' and apt_periodic | length > 0
 
 - name: Deploy APT archives config
   ansible.builtin.template:
@@ -30,7 +30,7 @@
     owner: root
     group: root
     mode: '0644'
-  when: ansible_pkg_mgr == 'apt' and apt_archives
+  when: ansible_facts['pkg_mgr'] == 'apt' and apt_archives | length > 0
 
 - name: Deploy APT update hooks config
   ansible.builtin.template:
@@ -39,7 +39,7 @@
     owner: root
     group: root
     mode: '0644'
-  when: ansible_pkg_mgr == 'apt' and (apt_update_post_invoke_success or apt_update_pre_invoke)
+  when: ansible_facts['pkg_mgr'] == 'apt' and (apt_update_post_invoke_success | length > 0 or apt_update_pre_invoke | length > 0)
 
 # ── AlmaLinux / RHEL ─────────────────────────────────────────────────────────
 - name: Deploy dnf-automatic config
@@ -49,10 +49,15 @@
     owner: root
     group: root
     mode: '0644'
-  when: ansible_pkg_mgr == 'dnf'
+  when: ansible_facts['pkg_mgr'] == 'dnf'
 
 - name: Enable auto-upgrade service
   ansible.builtin.service:
     name: "{{ autoupgrade_service }}"
     state: started
     enabled: yes
+  register: autoupgrade_service_result
+  # In check mode the package is only simulated, so the unit may not exist yet
+  failed_when:
+    - autoupgrade_service_result is failed
+    - not (ansible_check_mode and 'Could not find the requested service' in autoupgrade_service_result.msg | default(''))
